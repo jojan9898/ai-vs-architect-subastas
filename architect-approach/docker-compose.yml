@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: subastas-postgres
+    environment:
+      POSTGRES_DB: subastasdb
+      POSTGRES_USER: subastas
+      POSTGRES_PASSWORD: subastas
+    ports:
+      - "${SUBASTAS_DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U subastas -d subastasdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: subastas-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/subastasdb
+      SPRING_DATASOURCE_USERNAME: subastas
+      SPRING_DATASOURCE_PASSWORD: subastas
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "${SUBASTAS_APP_PORT:-8080}:8080"
+
+volumes:
+  pgdata:

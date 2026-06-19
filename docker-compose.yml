@@ -1,0 +1,59 @@
+services:
+
+  # ── Vibecoder approach ──────────────────────────────────────────────────────
+  db-vibecoder:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auction
+    volumes:
+      - pgdata-vibecoder:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app-vibecoder:
+    build: ./vibecoder-approach
+    depends_on:
+      db-vibecoder:
+        condition: service_healthy
+    ports:
+      - "8094:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-vibecoder:5432/auction
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+  # ── Architect approach ───────────────────────────────────────────────────────
+  db-architect:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: subastas
+      POSTGRES_PASSWORD: subastas
+      POSTGRES_DB: subastas
+    volumes:
+      - pgdata-architect:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U subastas"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app-architect:
+    build: ./architect-approach
+    depends_on:
+      db-architect:
+        condition: service_healthy
+    ports:
+      - "8095:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-architect:5432/subastas
+      SPRING_DATASOURCE_USERNAME: subastas
+      SPRING_DATASOURCE_PASSWORD: subastas
+
+volumes:
+  pgdata-vibecoder:
+  pgdata-architect:
