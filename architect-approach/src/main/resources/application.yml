@@ -1,11 +1,8 @@
 spring:
-  application:
-    name: subastas-api
   datasource:
-    url: jdbc:postgresql://localhost:5432/subastasdb
-    username: subastas
-    password: subastas
-    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/subastasdb}
+    username: ${SPRING_DATASOURCE_USERNAME:subastas}
+    password: ${SPRING_DATASOURCE_PASSWORD:subastas}
   jpa:
     hibernate:
       ddl-auto: update
@@ -13,13 +10,3 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
-        format_sql: true
-    open-in-view: false
-    show-sql: false
-
-server:
-  port: 8080
-
-logging:
-  level:
-    com.subastas: INFO

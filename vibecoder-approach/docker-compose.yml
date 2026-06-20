@@ -1,31 +1,29 @@
 services:
   db:
-    image: postgres:16
+    image: postgres:16-alpine
     environment:
-      POSTGRES_DB: auctiondb
-      POSTGRES_USER: auction
-      POSTGRES_PASSWORD: auction
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: subastas
+      POSTGRES_PASSWORD: subastas
+      POSTGRES_DB: subastasdb
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U auction -d auctiondb"]
+      test: ["CMD-SHELL", "pg_isready -U subastas"]
       interval: 5s
-      timeout: 5s
+      timeout: 3s
       retries: 10
 
   app:
     build: .
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/auctiondb
-      SPRING_DATASOURCE_USERNAME: auction
-      SPRING_DATASOURCE_PASSWORD: auction
     depends_on:
       db:
         condition: service_healthy
+    ports:
+      - "8095:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/subastasdb
+      SPRING_DATASOURCE_USERNAME: subastas
+      SPRING_DATASOURCE_PASSWORD: subastas
 
 volumes:
   pgdata:
